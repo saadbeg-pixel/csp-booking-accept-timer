@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Booking Accept Timer</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#171226; --ink-2:#57506b; --ink-3:#867ea0;
+  --ground:#faf9fc; --panel:#ffffff; --rule:#e5e1ee; --rule-2:#efecf5;
+  --brand:#d9008d; --brand-soft:#fff0f9;
+  --free:#008043; --free-soft:#e6f7ee;
+  --cost:#a8341c; --cost-soft:#fdece7;
+  --wait:#7a5b00; --wait-soft:#fff3cf;
+  --wire:#b3a9c6;
+  --disp:"Bricolage Grotesque","Noto Sans",system-ui,sans-serif;
+  --body:"Noto Sans","Noto Sans Devanagari",system-ui,sans-serif;
+  --hi:"Noto Sans Devanagari","Noto Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#f0ecf7; --ink-2:#b4abc8; --ink-3:#8a81a3;
+  --ground:#141020; --panel:#1d1830; --rule:#332b47; --rule-2:#282139;
+  --brand:#ff5cc0; --brand-soft:#33132a;
+  --free:#4bd08c; --free-soft:#10301f;
+  --cost:#ff8f70; --cost-soft:#361b13;
+  --wait:#e8c766; --wait-soft:#332a10;
+  --wire:#5f5482;
+}}
+:root[data-theme="dark"]{
+  --ink:#f0ecf7; --ink-2:#b4abc8; --ink-3:#8a81a3;
+  --ground:#141020; --panel:#1d1830; --rule:#332b47; --rule-2:#282139;
+  --brand:#ff5cc0; --brand-soft:#33132a;
+  --free:#4bd08c; --free-soft:#10301f;
+  --cost:#ff8f70; --cost-soft:#361b13;
+  --wait:#e8c766; --wait-soft:#332a10;
+  --wire:#5f5482;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+.wide{max-width:1240px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--disp);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,5vw,52px);font-weight:700;letter-spacing:-.025em}
+h2{font-size:27px;font-weight:700;letter-spacing:-.015em;margin:0 0 8px}
+h3{font-size:16px;font-weight:700;margin:0 0 6px}
+p{margin:0 0 16px;max-width:68ch}
+.hi{font-family:var(--hi)}
+.lede{font-size:19px;color:var(--ink-2);max-width:62ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 10px}
+header{padding:64px 0 34px;border-bottom:1px solid var(--rule)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.meta b{color:var(--ink);font-weight:500}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+nav.toc a{font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--ink);
+  border:1px solid var(--rule);border-radius:8px;padding:7px 11px;background:var(--panel)}
+nav.toc a:hover{border-color:var(--brand);color:var(--brand)}
+nav.toc a:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+section{padding:44px 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.callout{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--brand);
+  border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 20px}
+.callout p:last-child{margin:0}
+ul.plain{margin:12px 0 20px;padding-left:20px}
+ul.plain li{font-size:15px;line-height:1.6;color:var(--ink-2);margin-bottom:8px;max-width:68ch}
+ul.plain li b{color:var(--ink);font-weight:600}
+h3.sub{margin:32px 0 6px;font-size:18px}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  border-radius:4px;padding:2px 6px;white-space:nowrap;vertical-align:2px}
+.tag.new{background:var(--brand-soft);color:var(--brand)}
+.tag.chg{background:var(--wait-soft);color:var(--wait)}
+.tag.same{background:var(--rule-2);color:var(--ink-3)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:22px 0 22px}
+.stat{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font-family:var(--disp);font-size:30px;line-height:1.1}
+.stat span{font-size:13px;color:var(--ink-2);line-height:1.45;display:block;margin-top:4px}
+
+/* change cards */
+.changes{display:grid;gap:12px;margin-top:22px}
+.chgcard{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;
+  display:grid;grid-template-columns:28px 1fr;gap:0 12px}
+.chgcard .n{font-family:var(--mono);font-size:11px;width:24px;height:24px;border-radius:50%;
+  background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;margin-top:2px}
+.chgcard h3{font-size:16px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.ba div{font-size:14px;line-height:1.55;color:var(--ink-2)}
+.ba div::before{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:3px}
+.ba .b::before{content:"Live today";color:var(--ink-3)}
+.ba .a::before{content:"New";color:var(--brand)}
+@media (max-width:620px){.ba{grid-template-columns:1fr}}
+
+/* flow strip */
+.strip{display:flex;gap:18px;overflow-x:auto;padding:8px 2px 18px;scroll-snap-type:x proximity;margin-top:18px}
+.strip::-webkit-scrollbar{height:8px}
+.strip::-webkit-scrollbar-thumb{background:var(--rule);border-radius:8px}
+figure.scr{flex:0 0 220px;margin:0;scroll-snap-align:start}
+figure.scr img{width:220px;display:block;border-radius:16px;border:1px solid var(--rule);background:#fff}
+figure.scr.sheet img{border-radius:14px}
+figure.scr figcaption{font-size:13px;line-height:1.5;color:var(--ink-2);margin-top:10px}
+figure.scr figcaption b{display:block;color:var(--ink);font-size:13.5px;font-weight:600}
+figure.scr figcaption s{text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  color:var(--brand);display:block;margin-bottom:2px}
+.arrow{flex:0 0 auto;align-self:center;color:var(--wire);font-size:22px;margin-top:-60px}
+.hint{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:0}
+
+/* flow map */
+.map{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:20px;margin-top:20px;overflow-x:auto}
+.map svg{display:block;min-width:900px;width:100%;height:auto}
+.map text{font-family:var(--body);fill:var(--ink)}
+.map .lbl{font-family:var(--mono);font-size:10px;fill:var(--ink-3)}
+.map .box{fill:var(--panel);stroke:var(--rule);stroke-width:1.4}
+.map .box.hub{fill:var(--brand-soft);stroke:var(--brand)}
+.map .box.ok{fill:var(--free-soft);stroke:var(--free)}
+.map .box.bad{fill:var(--cost-soft);stroke:var(--cost)}
+.map .box.wait{fill:var(--wait-soft);stroke:var(--wait)}
+.map .ln{stroke:var(--wire);stroke-width:1.4;fill:none}
+.map .hd{fill:var(--wire)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:12px 0 0}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;border:1.4px solid currentColor}
+.legend .h{color:var(--brand)} .legend .f{color:var(--free)} .legend .c{color:var(--cost)} .legend .w{color:var(--wait)}
+
+/* tables */
+.tbl{overflow-x:auto;margin:16px 0 8px;border:1px solid var(--rule);border-radius:12px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;
+  color:var(--ink-3);text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--rule-2)}
+td{padding:10px 14px;border-bottom:1px solid var(--rule-2);vertical-align:top;color:var(--ink-2)}
+tr:last-child td{border-bottom:0}
+td b{color:var(--ink);font-weight:600}
+td.hi,span.hi{font-family:var(--hi);color:var(--ink)}
+.red{color:var(--cost);font-weight:600}
+
+/* case blocks */
+.case{margin-top:36px}
+.case h3{font-size:19px}
+.case .def{font-size:15px;color:var(--ink-2);margin:4px 0 0;max-width:68ch}
+ol.steps{counter-reset:s;list-style:none;padding:0;margin:16px 0 0}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 12px 36px;font-size:15px;color:var(--ink-2);max-width:70ch}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:24px;height:24px;
+  border-radius:50%;background:var(--brand-soft);color:var(--brand);font-family:var(--mono);
+  font-size:11px;display:grid;place-items:center}
+ol.steps li b{color:var(--ink);font-weight:600}
+
+/* motion */
+.motion{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px}
+.mo{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:16px 18px}
+.mo h3{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
+.mo ol{margin:0;padding-left:18px}
+.mo li{font-size:14px;color:var(--ink-2);margin-bottom:6px;line-height:1.5}
+.mo li b{color:var(--ink)}
+footer{padding:40px 0 70px;color:var(--ink-3);font-size:13px;font-family:var(--mono)}
+@media (max-width:520px){.wrap,.wide{padding:0 16px} figure.scr{flex-basis:180px} figure.scr img{width:180px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Wiom Partner App · New booking · Design spec v1</p>
+    <h1>Accept on the date screen, with a clock you can see</h1>
+    <p class="lede" style="margin-top:18px">A new booking now shows how long the CSP has left to accept it, everywhere the booking appears. Acceptance moves from the address screen to the date screen, so a CSP only says yes after seeing both where and when. After the yes, the app goes straight to picking the team.</p>
+    <div class="meta">
+      <span>Date <b>26 Oct 2026</b></span>
+      <span>Design <b>Saad</b></span>
+      <span>Problem <b>GROW-106 (Saurabh)</b></span>
+      <span>Applies to <b>CSPs on the new booking flow (pilot, about 60–70 CSPs)</b></span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#why">Why</a><a href="#changes">What changes</a><a href="#flow">New flow</a>
+      <a href="#map">Flow map</a><a href="#timer">Timer rules</a><a href="#motion">Motion</a>
+      <a href="#cases">Cases</a><a href="#home">Home card</a><a href="#copy">Copy</a><a href="#measure">Measure</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section id="why">
+  <div class="wrap">
+    <p class="eyebrow">01 · Why</p>
+    <h2>Four in ten bookings get no clear decision</h2>
+    <p>Of 558 bookings that reached the 61 pilot CSPs from 24 Sep to 1 Oct 2026, 242 (43%) got no explicit decision within 24 hours. Most of these bookings never got installed.</p>
+    <div class="stats">
+      <div class="stat"><b>176</b><span>timed out. The CSP never accepted, and the system took the booking back.</span></div>
+      <div class="stat"><b>66</b><span>accepted, but no technician assigned within 24 hours.</span></div>
+      <div class="stat"><b>78.5%</b><span>of these 242 bookings did not install within 14 days.</span></div>
+    </div>
+    <p>We read these as two gaps in the flow:</p>
+    <ul class="plain">
+      <li><b>Before accepting there is a deadline, but the CSP can't see it.</b> The booking is taken back if it isn't accepted in time. Today the countdown shows only on the home card, so a CSP who opens the booking does not see the clock.</li>
+      <li><b>Accepting and assigning are two separate jobs.</b> Today the CSP accepts on the address screen, lands on the date screen, and has to tap "टीम को भेजें" separately. Many stop after the yes.</li>
+    </ul>
+    <div class="callout"><p><b>The goal</b> is more bookings installed: a clear yes (with a team assigned) or a clear no, before the booking times out. The 24 hours is only the window the analysis used.</p></div>
+  </div>
+</section>
+
+<section id="changes">
+  <div class="wrap">
+    <p class="eyebrow">02 · What changes</p>
+    <h2>Eleven changes, at a glance</h2>
+    <div class="changes">
+      <div class="chgcard"><span class="n">1</span><div><h3>Timer on every surface before acceptance <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">The countdown shows only on the home card. The bubble and the booking screens show no time.</div>
+        <div class="a">The same countdown shows as a ring on the bubble, a chip in the top bar of the address and date screens (<span class="hi">"3:42:10 में स्वीकार करें"</span>), and the card's second line on home. The ring stroke is itself a timer: it empties as the time runs out. Stacked bubbles each have their own ring.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">2</span><div><h3>Timer turns red in the last 30 minutes <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">There is no urgency state.</div>
+        <div class="a">When 30 minutes or less are left, the time is red on the home card and the chips, and the bubble ring turns red too, including on stacked bubbles. The text stays the same. At 0:00:00 the chip stays red.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">3</span><div><h3>Address screen opens with the timer first <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">Bubble tap opens the booking card directly.</div>
+        <div class="a">The screen opens blurred. The timer in the top bar grows into a large card, holds for 1 second, then shrinks back into place. The blur then clears and the map, address and CTA are usable.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">4</span><div><h3>Address screen has one way forward <span class="tag chg">changed</span></h3>
+        <div class="ba"><div class="b"><span class="hi">"यह कनेक्शन लगा सकता हूँ"</span> (accept) + <span class="hi">"नहीं लगा सकता"</span>, and a separate <span class="hi">"पता नहीं समझे ?"</span> link.</div>
+        <div class="a">There is one CTA: <span class="hi">"इंस्टालेशन का दिन देखें"</span> → date screen. The link becomes <span class="hi">"पता समझ नहीं आया / नहीं लगा सकते?"</span> and opens one sheet: call the customer, see nearby connections, or <span class="hi">"इस पते पर नहीं लगा सकता"</span> (cases 5A and 6). In the address card, the landmark row, the address and the voice note are 8 dp apart. The voice note is a new inline player (play button, waveform, duration, caller avatar in a rounded grey container).</div></div></div></div>
+
+      <div class="chgcard"><span class="n">5</span><div><h3>Acceptance moves to the date screen <span class="tag chg">changed</span></h3>
+        <div class="ba"><div class="b">The date screen opens only after acceptance and has <span class="hi">"टीम को भेजें"</span>.</div>
+        <div class="a">The date screen is step 2 of 2, before acceptance. Its primary CTA is <span class="hi">"यह कनेक्शन लगा सकता हूँ"</span> (this is the accept). The secondary CTA is <span class="hi">"इस दिन कनेक्शन नहीं लगा सकता"</span>. ← in the top bar goes back to the address screen (1/2). Nothing is sent and the timer keeps running. <span class="hi">"दिन बदलें"</span> works before accepting, the same as live, and the CSP still accepts afterwards. The "इस दिन कनेक्शन लगाना ही है" pill is removed.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">6</span><div><h3>After accepting: the commitment merges into the team list <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">The CSP stays on the date screen and has to find <span class="hi">"टीम को भेजें"</span>.</div>
+        <div class="a">A success screen shows a tick and <span class="hi">"सेवा स्थिति अच्छी बनाए रखने के लिए 18 जुलाई तक कनेक्शन लगाएँ"</span> for 1.2 seconds. The line then moves up into a banner at the top of the team list, which opens on its own, and the team options appear a moment later. The commitment stays visible while the CSP picks who will install.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">7</span><div><h3>After assigning: success that becomes the drilldown <span class="tag chg">changed</span></h3>
+        <div class="ba"><div class="b">"{name} को भेज दिया गया है" screen with a <span class="hi">"डिटेल देखें"</span> button.</div>
+        <div class="a">The success screen shows <span class="hi">"सुनील यादव तय हो गए हैं"</span> and <span class="hi">"18 जुलाई तक कनेक्शन लगाएँ"</span>, then slides up into the drilldown (no tap needed). The drilldown title and subtitle are the same lines. If the CSP picks <span class="hi">"मैं खुद करूँगा"</span>, the title is <span class="hi">"यह कनेक्शन आप खुद लगाएँगे"</span> (case 8). This applies everywhere a technician gets assigned.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">8</span><div><h3>Closing without accepting asks once <span class="tag chg">changed</span></h3>
+        <div class="ba"><div class="b">The dismiss sheet says <span class="hi">"यह कनेक्शन अभी नहीं देखना?"</span>.</div>
+        <div class="a">✕ on either screen opens <span class="hi">"कनेक्शन अभी स्वीकार नहीं हुआ है"</span>, which explains how to accept. Primary: <span class="hi">"बाद में देखूँगा"</span>. Secondary: the next step (see the date, or accept).</div></div></div></div>
+
+      <div class="chgcard"><span class="n">9</span><div><h3>Timer info and time-up <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">The bubble disappears silently at the deadline.</div>
+        <div class="a">Tapping the chip explains the timer. If time runs out while a booking screen is open, the chip turns red at 0:00:00 and a <span class="hi">"समय खत्म"</span> sheet tells the CSP the booking is no longer theirs. <span class="hi">"ठीक है"</span> → home, with a closed card <span class="hi">"कनेक्शन वापस ले लिया गया"</span>.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">10</span><div><h3>Customer reasons need a call first <span class="tag chg">changed</span></h3>
+        <div class="ba"><div class="b">Every reason shows to every CSP, in a fixed order per screen.</div>
+        <div class="a"><span class="hi">"कस्टमर ने मना कर दिया"</span> and <span class="hi">"कस्टमर से बात नहीं हो पाई"</span> show only if the CSP has tapped a call to the customer at least once on this booking. On the date screen they move to the top when the CSP has called. See case 5.</div></div></div></div>
+
+      <div class="chgcard"><span class="n">11</span><div><h3>₹750 line with a link to the scheme in every install drilldown <span class="tag new">new</span></h3>
+        <div class="ba"><div class="b">The earning banner shows only on the new-booking card, before accepting.</div>
+        <div class="a">ज़रूरी जानकारी in every install drilldown shows <span class="hi">"इस कनेक्शन पर ₹750 कमाएँ"</span>. For eligible CSPs who have not opted in, a pink › next to it opens the scheme page (the same consent page as live). Opted-in CSPs see <span class="hi">"इस कनेक्शन पर ₹750 मिलेंगे"</span> with no arrow, and CSPs who are not eligible don't see the line. It is removed once the ticket is archived.</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wide">
+    <p class="eyebrow">03 · New flow</p>
+    <h2>Happy journey: bubble to team assigned</h2>
+    <p class="hint">Scroll sideways →</p>
+    <div class="strip">
+      <figure class="scr"><img src="img/h1-bubble.png" alt="Bubble with a timer ring" loading="lazy"><figcaption><s>STEP 1</s><b>Bubble with timer ring</b>The ring empties as time runs out. Tap → address.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h2-0-blur.png" alt="Address screen opening blurred, timer at normal size" loading="lazy"><figcaption><s>STEP 2a</s><b>Opens blurred</b>The top bar and timer are at their normal size, and the screen behind is blurred.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h2a-intro.png" alt="Timer grown into a large card at the top" loading="lazy"><figcaption><s>STEP 2b</s><b>Timer grows (holds 1 s)</b>The top bar grows into a card near the top, with a large chip and <span class="hi">में स्वीकार करें</span>.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h2b-timer-up.png" alt="Timer back in the top bar" loading="lazy"><figcaption><s>STEP 2c</s><b>Back to its place</b>It shrinks back into the top bar, and then the blur clears.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h2-address.png" alt="Address screen, step 1 of 2" loading="lazy"><figcaption><s>STEP 2 · 1/2</s><b>Address</b>Top bar: timer chip + ✕. One CTA: <span class="hi">इंस्टालेशन का दिन देखें</span>.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h3-date.png" alt="Date screen, step 2 of 2" loading="lazy"><figcaption><s>STEP 3 · 2/2</s><b>Date + customer</b>Top bar: ←, timer chip, ✕. <span class="hi">यह कनेक्शन लगा सकता हूँ</span> = accept.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h4-accepted.png" alt="Accepted commitment screen" loading="lazy"><figcaption><s>STEP 4</s><b>Accepted · commitment (1.2 s)</b>The timer stops. The line then moves up into the team list banner.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h5-0-banner.png" alt="Team list with only the banner" loading="lazy"><figcaption><s>STEP 5a</s><b>Banner first</b>The banner lands at the top. The team card is not shown yet.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h5-team-empty.png" alt="Team list, nothing selected" loading="lazy"><figcaption><s>STEP 5b</s><b>Options appear</b>After a short delay the team card fades in. Nothing selected → CTA disabled.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h6-team.png" alt="Team list, one member selected" loading="lazy"><figcaption><s>STEP 6</s><b>Member selected</b><span class="hi">टीम को भेजें</span> becomes active.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h7-success.png" alt="Success: Sunil Yadav is assigned" loading="lazy"><figcaption><s>STEP 7</s><b>Success (1.2 s)</b><span class="hi">सुनील यादव तय हो गए हैं · 18 जुलाई तक कनेक्शन लगाएँ</span> → slides up into the drilldown.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h8-drilldown.png" alt="Drilldown after assignment" loading="lazy"><figcaption><s>STEP 8</s><b>Drilldown</b>Same title and subtitle. ज़रूरी जानकारी: <span class="hi">इस कनेक्शन पर ₹750 कमाएँ</span> with a pink › to the scheme page (eligible, not opted in). ← → home.</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure class="scr"><img src="img/h9-home.png" alt="Home with the assigned card" loading="lazy"><figcaption><s>STEP 9</s><b>Home</b>Card: <span class="hi">इंस्टॉलेशन के दिन का इंतज़ार करें</span>. No timer, no badge.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="map">
+  <div class="wide">
+    <p class="eyebrow">04 · Flow map</p>
+    <h2>Every way out of the two booking screens</h2>
+    <div class="map">
+      <svg viewBox="0 0 1180 520" role="img" aria-label="Flow map of the new booking journey">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="hd" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <!-- lanes -->
+        <text class="lbl" x="10" y="20">BEFORE ACCEPT · TIMER RUNNING</text>
+        <text class="lbl" x="640" y="20">AFTER ACCEPT · NO TIMER</text>
+        <line x1="620" y1="10" x2="620" y2="510" stroke="var(--rule)" stroke-dasharray="4 4"/>
+        <!-- main row -->
+        <rect class="box" x="10" y="40" width="120" height="54" rx="10"/><text x="70" y="64" text-anchor="middle" font-size="13" font-weight="600">Bubble</text><text x="70" y="82" text-anchor="middle" class="lbl">ring timer</text>
+        <rect class="box hub" x="170" y="40" width="150" height="54" rx="10"/><text x="245" y="64" text-anchor="middle" font-size="13" font-weight="600">Address · 1/2</text><text x="245" y="82" text-anchor="middle" class="lbl">timer chip</text>
+        <rect class="box hub" x="370" y="40" width="150" height="54" rx="10"/><text x="445" y="64" text-anchor="middle" font-size="13" font-weight="600">Date · 2/2</text><text x="445" y="82" text-anchor="middle" class="lbl">accept here</text>
+        <rect class="box ok" x="650" y="40" width="140" height="54" rx="10"/><text x="720" y="64" text-anchor="middle" font-size="13" font-weight="600">Accepted</text><text x="720" y="82" text-anchor="middle" class="lbl">1.2 s → banner</text>
+        <rect class="box" x="830" y="40" width="130" height="54" rx="10"/><text x="895" y="64" text-anchor="middle" font-size="13" font-weight="600">Team list</text><text x="895" y="82" text-anchor="middle" class="lbl">pick one</text>
+        <rect class="box ok" x="1000" y="40" width="170" height="54" rx="10"/><text x="1085" y="64" text-anchor="middle" font-size="13" font-weight="600">Assigned → drilldown</text><text x="1085" y="82" text-anchor="middle" class="lbl">success slides up</text>
+        <path class="ln" d="M130 67 H168" marker-end="url(#ah)"/>
+        <path class="ln" d="M320 60 H368" marker-end="url(#ah)"/><text class="lbl" x="344" y="54" text-anchor="middle">दिन देखें</text>
+        <path class="ln" d="M368 78 H322" marker-end="url(#ah)"/><text class="lbl" x="344" y="92" text-anchor="middle">←</text>
+        <path class="ln" d="M520 67 H648" marker-end="url(#ah)"/><text class="lbl" x="584" y="60" text-anchor="middle">लगा सकता हूँ</text>
+        <path class="ln" d="M790 67 H828" marker-end="url(#ah)"/><text class="lbl" x="809" y="60" text-anchor="middle">auto</text>
+        <path class="ln" d="M960 67 H998" marker-end="url(#ah)"/><text class="lbl" x="979" y="60" text-anchor="middle">भेजें</text>
+        <!-- dismiss -->
+        <rect class="box wait" x="170" y="160" width="350" height="54" rx="10"/><text x="345" y="184" text-anchor="middle" font-size="13" font-weight="600">✕ → "कनेक्शन अभी स्वीकार नहीं हुआ है"</text><text x="345" y="202" text-anchor="middle" class="lbl">बाद में देखूँगा → home, card keeps the timer</text>
+        <path class="ln" d="M245 94 V158" marker-end="url(#ah)"/><path class="ln" d="M445 94 V158" marker-end="url(#ah)"/>
+        <!-- reject -->
+        <rect class="box" x="10" y="270" width="230" height="54" rx="10"/><text x="125" y="294" text-anchor="middle" font-size="13" font-weight="600">Help sheet (from 1/2 link)</text><text x="125" y="312" text-anchor="middle" class="lbl">call · nearby · इस पते पर नहीं</text>
+        <rect class="box" x="290" y="270" width="230" height="54" rx="10"/><text x="405" y="294" text-anchor="middle" font-size="13" font-weight="600">"दिन बदल सकते हैं" (from 2/2)</text><text x="405" y="312" text-anchor="middle" class="lbl">दिन बदलें · कनेक्शन नहीं लगाना</text>
+        <rect class="box bad" x="150" y="370" width="230" height="54" rx="10"/><text x="265" y="394" text-anchor="middle" font-size="13" font-weight="600">Reason sheet → removed</text><text x="265" y="412" text-anchor="middle" class="lbl">"बुकिंग हटा दी गई है" → home</text>
+        <path class="ln" d="M200 94 C200 180 125 200 125 268" marker-end="url(#ah)"/>
+        <path class="ln" d="M490 94 C540 150 450 220 430 268" marker-end="url(#ah)"/>
+        <path class="ln" d="M125 324 V346 H230 V368" marker-end="url(#ah)"/>
+        <path class="ln" d="M405 324 V346 H300 V368" marker-end="url(#ah)"/>
+        <!-- time up -->
+        <rect class="box bad" x="400" y="440" width="200" height="54" rx="10"/><text x="500" y="464" text-anchor="middle" font-size="13" font-weight="600">"समय खत्म" sheet</text><text x="500" y="482" text-anchor="middle" class="lbl">timer hits 0 on 1/2 or 2/2</text>
+        <!-- after-accept side exits -->
+        <rect class="box wait" x="830" y="160" width="250" height="54" rx="10"/><text x="955" y="184" text-anchor="middle" font-size="13" font-weight="600">← without assigning</text><text x="955" y="202" text-anchor="middle" class="lbl">home: "टीम चुनना बाकी है"</text>
+        <path class="ln" d="M895 94 V158" marker-end="url(#ah)"/>
+        <rect class="box" x="830" y="270" width="250" height="54" rx="10"/><text x="955" y="294" text-anchor="middle" font-size="13" font-weight="600">Card tap → drilldown</text><text x="955" y="312" text-anchor="middle" class="lbl">"टेक्निशियन चुनना बाकी है" · टीम को भेजें</text>
+        <path class="ln" d="M955 214 V268" marker-end="url(#ah)"/>
+        <path class="ln" d="M1080 297 H1120 V96" marker-end="url(#ah)"/><text class="lbl" x="1126" y="200">assign</text>
+      </svg>
+    </div>
+    <div class="legend"><span class="h"><i></i>timer running</span><span class="f"><i></i>accepted / done</span><span class="w"><i></i>paused, comes back via home</span><span class="c"><i></i>booking leaves the CSP</span></div>
+  </div>
+</section>
+
+<section id="timer">
+  <div class="wrap">
+    <p class="eyebrow">05 · Timer rules</p>
+    <h2>One clock, shown in four places</h2>
+    <ul class="plain">
+      <li><b>What it counts:</b> the time left until the booking is taken back if not accepted. The deadline comes from the server; today it is 6 hours from when the booking reaches the CSP. The app only displays the deadline and never sets it.</li>
+      <li><b>Format:</b> <span class="hi">h:mm:ss</span> (for example 3:42:10). It ticks every second on the booking screens and the home card.</li>
+      <li><b>The ring is a timer too:</b> the bubble's ring stroke shows the share of time left. It is full when the booking arrives and empties smoothly to nothing at the deadline. When several bookings are stacked, each bubble has its own ring, and the top one is visible in the collapsed stack.</li>
+      <li><b>Where it shows:</b> the bubble ring, the address screen chip, the date screen chip, and the home card's second line (<span class="hi">"3:42:10 · कनेक्शन स्वीकार करना बाकी है"</span>).</li>
+      <li><b>Last 30 minutes:</b> the time turns red (text/critical) on the home card and both chips, and the bubble ring turns red (stacked bubbles too). Nothing else changes.</li>
+      <li><b>On accept:</b> the timer stops and disappears from every surface. After acceptance no clock is shown (the 72-hour install window is not shown as a timer).</li>
+      <li><b>At zero with a booking screen open:</b> the chip shows 0:00:00 in red and the <span class="hi">"समय खत्म"</span> sheet opens. <span class="hi">"ठीक है"</span> → home. If no booking screen is open, the bubble disappears, as today. In both cases the home card becomes a greyed, closed card (<span class="hi">"कनेक्शन वापस ले लिया गया"</span>) and later moves to <span class="hi">पुराने काम</span> (archive), as today.</li>
+      <li><b>Chip tap:</b> opens the timer info sheet (<span class="hi">"3:42:10 में कनेक्शन स्वीकार करें"</span>).</li>
+    </ul>
+    <div class="strip">
+      <figure class="scr"><img src="img/c7-bubble-red.png" alt="Bubble with red timer ring" loading="lazy"><figcaption><s>LAST 30 MIN</s><b>Bubble ring</b>The ring turns red and shows the time left (here about 8%).</figcaption></figure>
+      <figure class="scr"><img src="img/c7-home-red.png" alt="Home card with red timer" loading="lazy"><figcaption><s>LAST 30 MIN</s><b>Home card</b>The time is red and the text is unchanged.</figcaption></figure>
+      <figure class="scr"><img src="img/c7-address-red.png" alt="Address chip red" loading="lazy"><figcaption><s>LAST 30 MIN</s><b>Address chip</b></figcaption></figure>
+      <figure class="scr"><img src="img/c7-date-red.png" alt="Date chip red" loading="lazy"><figcaption><s>LAST 30 MIN</s><b>Date chip</b></figcaption></figure>
+      <figure class="scr sheet"><img src="img/s-timer-info.png" alt="Timer info sheet" loading="lazy"><figcaption><s>CHIP TAP</s><b>Timer info sheet</b><span class="hi">ठीक है</span> closes it.</figcaption></figure>
+      <figure class="scr"><img src="img/c3-time-up.png" alt="Time up sheet" loading="lazy"><figcaption><s>AT ZERO</s><b>समय खत्म</b><span class="hi">यह बुकिंग अब आपके पास नहीं है</span> → home.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="motion">
+  <div class="wrap">
+    <p class="eyebrow">06 · Motion</p>
+    <h2>Three transitions</h2>
+    <div class="motion">
+      <div class="mo"><h3>A · Timer intro (address only)</h3><ol>
+        <li>Plays only when the address screen opens from the bubble (dissolve, <b>0.3 s</b>).</li>
+        <li>The address screen opens <b>blurred</b>, with the top bar and timer chip at their normal size.</li>
+        <li>The top bar <b>grows downward</b> into a card near the top (inset 16 dp), and the chip grows with it (time text 12 → 19 sp), with <span class="hi">"में स्वीकार करें"</span> under it. It moves as one block, with a gentle spring, over about <b>1 s</b>.</li>
+        <li>It holds at the large size for <b>1 s</b>.</li>
+        <li>It shrinks back to the normal top bar with the same spring, over about <b>1 s</b>.</li>
+        <li>The blur clears (<b>0.2 s</b>), and the map, address card and CTA are usable.</li></ol></div>
+      <div class="mo"><h3>B · Accepted → team list banner</h3><ol>
+        <li>Tap <span class="hi">"यह कनेक्शन लगा सकता हूँ"</span> → accept call.</li>
+        <li>On success, the screen shows a tick and <span class="hi">"सेवा स्थिति अच्छी बनाए रखने के लिए 18 जुलाई तक कनेक्शन लगाएँ"</span> (two lines).</li>
+        <li>It holds for <b>1.2 s</b>. There is no loader and no tap.</li>
+        <li>The tick and line move up and shrink into a banner card at the top of the team list, over <b>0.7 s</b> ease-in-out. The header and bottom CTA appear with it.</li>
+        <li>After a <b>0.15 s</b> pause, the team card (<span class="hi">"इंस्टॉलेशन कौन करेगा?"</span> + options) fades in, over <b>0.3 s</b> ease-out.</li>
+        <li>The banner stays on the team list, so the date and the quality line are visible while the CSP picks someone.</li></ol></div>
+      <div class="mo"><h3>C · Assigned → drilldown</h3><ol>
+        <li>Tap <span class="hi">"टीम को भेजें"</span> with a member selected.</li>
+        <li>A full success screen shows a large tick, <span class="hi">"{name} तय हो गए हैं"</span> and <span class="hi">"{date} तक कनेक्शन लगाएँ"</span>. For self-assign the title is <span class="hi">"यह कनेक्शन आप खुद लगाएँगे"</span>. It holds for <b>1.2 s</b>.</li>
+        <li>The success block moves up into the drilldown's status banner over <b>0.7 s</b> ease-in-out, and the rest of the drilldown fades in.</li>
+        <li>This applies wherever a technician gets assigned: from the new flow, and from the drilldown's <span class="hi">"टीम को भेजें"</span>.</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section id="cases">
+  <div class="wide">
+    <p class="eyebrow">07 · Cases</p>
+    <h2>What happens when the CSP leaves the happy path</h2>
+
+    <div class="case">
+      <h3>Case 1 · ✕ on the date screen before accepting</h3>
+      <p class="def">The CSP has seen the address and the date but closes without tapping <span class="hi">"यह कनेक्शन लगा सकता हूँ"</span>. The booking is still theirs and the timer keeps running.</p>
+      <ol class="steps">
+        <li>✕ → sheet <span class="hi">"कनेक्शन अभी स्वीकार नहीं हुआ है"</span>. The secondary button accepts right away.</li>
+        <li><b><span class="hi">बाद में देखूँगा</span></b> → home. The card shows the timer: <span class="hi">"3:42:10 · कनेक्शन स्वीकार करना बाकी है"</span>.</li>
+        <li>Card tap → opens the <b>date screen</b> again, with the timer running. ← goes to the address screen.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr sheet"><img src="img/s-dismiss-date.png" alt="Dismiss sheet from date screen" loading="lazy"><figcaption><b>✕ on 2/2</b>Primary <span class="hi">बाद में देखूँगा</span> · secondary <span class="hi">यह कनेक्शन लगा सकता हूँ</span></figcaption></figure>
+        <figure class="scr"><img src="img/a2-home-timer.png" alt="Home card with timer" loading="lazy"><figcaption><b>Home card</b>The timer line stays until the CSP accepts or the time runs out.</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 2 · Accepted, closed the team list without assigning</h3>
+      <p class="def">The CSP accepted (the booking is theirs and the timer is gone) but left the team list without picking anyone.</p>
+      <ol class="steps">
+        <li>← on the team list → home. The card shows <span class="hi">"टीम चुनना बाकी है"</span> with an attention mark. There is no timer.</li>
+        <li>Card tap → drilldown in the existing <i>awaiting technician</i> state: <span class="hi">"टेक्निशियन चुनना बाकी है"</span> with <span class="hi">"टीम को भेजें"</span>.</li>
+        <li><span class="hi">टीम को भेजें</span> → team list → assign → success → drilldown (motion C).</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr"><img src="img/b6-home-team-pending.png" alt="Home card: team pending" loading="lazy"><figcaption><b>Home card</b><span class="hi">टीम चुनना बाकी है</span></figcaption></figure>
+        <figure class="scr"><img src="img/b6b-drilldown-pending.png" alt="Drilldown awaiting technician" loading="lazy"><figcaption><b>Drilldown</b>Existing state, with <span class="hi">टीम को भेजें</span> at the bottom.</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 3 · The timer runs out while a booking screen is open</h3>
+      <p class="def">The deadline passes while the CSP is on the address or date screen. The booking is no longer theirs.</p>
+      <ol class="steps">
+        <li>The chip reaches 0:00:00 and turns red, and the <span class="hi">"समय खत्म"</span> sheet opens on top of whichever screen is open.</li>
+        <li><span class="hi">ठीक है</span> → home. The card is now a greyed, closed card, <span class="hi">"कनेक्शन वापस ले लिया गया"</span>, and later moves to <span class="hi">पुराने काम</span> (archive), as today.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr"><img src="img/c3-time-up.png" alt="Time up sheet with red chip" loading="lazy"><figcaption><b>Time up</b>The chip is red at 0:00:00.</figcaption></figure>
+        <figure class="scr"><img src="img/c3-home-timedout.png" alt="Home with the closed card" loading="lazy"><figcaption><b>Home</b>Greyed, closed card. The yellow "Index" button exists only in the prototype.</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 4 · ✕ on the address screen</h3>
+      <p class="def">The CSP closes after seeing only the address. Nothing is accepted, and the timer keeps running.</p>
+      <ol class="steps">
+        <li>✕ → sheet <span class="hi">"कनेक्शन अभी स्वीकार नहीं हुआ है"</span>. Its secondary button is <span class="hi">"इंस्टॉलेशन का दिन देखें"</span> → date screen.</li>
+        <li><span class="hi">बाद में देखूँगा</span> → back where the CSP came from (home). The card shows the timer line, as in case 1. Card tap → address screen.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr sheet"><img src="img/s-dismiss-address.png" alt="Dismiss sheet from address screen" loading="lazy"><figcaption><b>✕ on 1/2</b>Primary <span class="hi">बाद में देखूँगा</span> · secondary <span class="hi">इंस्टॉलेशन का दिन देखें</span></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 5A · Can't install at this address (from the address screen)</h3>
+      <p class="def">The CSP taps <span class="hi">"पता समझ नहीं आया / नहीं लगा सकते?"</span>. We first help them understand the address, and only then take a no.</p>
+      <ol class="steps">
+        <li>Sheet <span class="hi">"पता समझ नहीं आ रहा?"</span> has two help rows and a red text button:
+          <span class="hi">कस्टमर को कॉल करके पता समझें</span> → call sheet (IVR code, as live) ·
+          <span class="hi">इस जगह पर आपके पहले से लगे 4 कनेक्शन देखें</span> → nearby map + list ·
+          <span class="hi">इस पते पर नहीं लगा सकता</span> → reasons.</li>
+        <li>The reason sheet shows two reasons that fit the address: <span class="hi">इस जगह तार नहीं जा पाता</span> and <span class="hi">नेट-बॉक्स नहीं है</span>, plus <span class="hi">और वजहें</span>. Submit is disabled until one is picked.</li>
+        <li><span class="hi">और वजहें</span> adds <span class="hi">कस्टमर ने मना कर दिया</span> and <span class="hi">कस्टमर से बात नहीं हो पाई</span> <b>only if the CSP has called the customer at least once on this booking</b>, plus <span class="hi">कोई और वजह</span> (free text, always last and only in the full list). Without a call, the full list is the two address reasons plus <span class="hi">कोई और वजह</span>.</li>
+        <li>Submit → <span class="hi">"बुकिंग हटा दी गई है"</span> with the chosen reason. For the cable reason it adds <span class="hi">"अब इस जगह के आस पास बुकिंग आपको नहीं भेजी जाएगी"</span>. <span class="hi">ठीक है</span> → home, where the card reads <span class="hi">"कनेक्शन आपने हटा दिया"</span>.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr sheet"><img src="img/s-address-help.png" alt="Address help sheet" loading="lazy"><figcaption><b>Help first</b>Two ways to understand the address, then the no.</figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-call-customer.png" alt="Call customer sheet" loading="lazy"><figcaption><b>Call the customer</b>Same as live.</figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-nearby.png" alt="Nearby connections sheet" loading="lazy"><figcaption><b>Nearby connections</b>Same as live. <span class="hi">ठीक है</span> → back to 1/2.</figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-reason-address.png" alt="Reason sheet for address" loading="lazy"><figcaption><b>Reasons · address</b>2 shown + <span class="hi">और वजहें</span></figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-reason-all.png" alt="All reasons" loading="lazy"><figcaption><b>All reasons</b><span class="hi">कोई और वजह</span> last.</figcaption></figure>
+        <figure class="scr"><img src="img/c5-removed.png" alt="Booking removed screen" loading="lazy"><figcaption><b>Removed</b>Shows the reason the CSP gave.</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 5B · Can't install on this day (from the date screen)</h3>
+      <p class="def">The CSP taps <span class="hi">"इस दिन कनेक्शन नहीं लगा सकता"</span>. We offer a date change before taking a no.</p>
+      <ol class="steps">
+        <li>Sheet <span class="hi">"दिन बदल सकते हैं"</span>: <span class="hi">दिन बदलें</span> → the date-change flow · <span class="hi">कनेक्शन नहीं लगाना</span> → reasons.</li>
+        <li><b>Changing the date before accepting</b> works the same as the live date change (reason → date picker → <span class="hi">"दिन बदल दिया गया है"</span>). The CSP lands back on 2/2 with the new date and the timer still running, and still has to tap <span class="hi">"यह कनेक्शन लगा सकता हूँ"</span> to accept. The customer gets the existing date-change message. The same applies to <span class="hi">"दिन बदलें"</span> on the date screen itself.</li>
+        <li><b>If the CSP has called the customer</b> at least once on this booking: the two customer reasons are on top (<span class="hi">कस्टमर ने मना कर दिया</span>, <span class="hi">कस्टमर से बात नहीं हो पाई</span>), and the rest are collapsed under <span class="hi">और वजहें</span>: the cable reason, नेट-बॉक्स, then <span class="hi">कोई और वजह</span> last.</li>
+        <li><b>If the CSP has not called:</b> the customer reasons are not shown at all. The top two are the remaining ones (<span class="hi">इस जगह तार नहीं जा पाता</span>, <span class="hi">नेट-बॉक्स नहीं है</span>), and <span class="hi">और वजहें</span> holds only <span class="hi">कोई और वजह</span>.</li>
+        <li>A "call" is any tap that starts a call to the customer on this booking: the call button on the date screen, or <span class="hi">"कस्टमर को कॉल करके पता समझें"</span> in the address help sheet.</li>
+        <li>Submit → <span class="hi">"बुकिंग हटा दी गई है"</span> → home, as in 5A.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr sheet"><img src="img/s-change-day.png" alt="Change day sheet" loading="lazy"><figcaption><b>Offer a new day first</b></figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-reason-date.png" alt="Reason sheet for date, has called" loading="lazy"><figcaption><b>Reasons · date (has called)</b>Customer reasons on top.</figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-reason-date-nocall.png" alt="Reason sheet for date, has not called" loading="lazy"><figcaption><b>Reasons · date (has not called)</b>Cable and नेट-बॉक्स on top, with no customer reasons.</figcaption></figure>
+        <figure class="scr sheet"><img src="img/s-reason-date-nocall-all.png" alt="All reasons, has not called" loading="lazy"><figcaption><b>और वजहें (has not called)</b>Only <span class="hi">कोई और वजह</span> is added.</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="case">
+      <h3>Case 6 · Address not understood</h3>
+      <p class="def">The CSP opens <span class="hi">"पता समझ नहीं आया / नहीं लगा सकते?"</span> only to understand the address, not to say no.</p>
+      <ol class="steps">
+        <li>The help sheet (as in 5A) → <span class="hi">कस्टमर को कॉल करके पता समझें</span> → the call sheet with the IVR code. This counts as a call for the reason rules.</li>
+        <li>Or → <span class="hi">इस जगह पर आपके पहले से लगे {n} कनेक्शन देखें</span> → the nearby map + list. <span class="hi">ठीक है</span> → back to 1/2, with the timer still running.</li>
+      </ol>
+    </div>
+
+    <div class="case">
+      <h3>Case 7 · Last 30 minutes</h3>
+      <p class="def">The booking is still unaccepted and 30 minutes or less are left. It behaves the same as the happy path, but the time is red everywhere, including the bubble ring (see Timer rules).</p>
+    </div>
+
+    <div class="case">
+      <h3>Case 8 · "मैं खुद करूँगा" (CSP installs it themselves)</h3>
+      <p class="def">On the team list the CSP picks themselves instead of a team member.</p>
+      <ol class="steps">
+        <li>Select <span class="hi">मैं खुद करूँगा</span> → <span class="hi">टीम को भेजें</span> becomes active.</li>
+        <li>Success: <span class="hi">"यह कनेक्शन आप खुद लगाएँगे"</span> · <span class="hi">"18 जुलाई तक कनेक्शन लगाएँ"</span>, held for 1.2 s, then it slides up into the drilldown (motion C).</li>
+        <li>Drilldown: the same title, and <span class="hi">कौन करेगा?</span> shows <span class="hi">आप खुद</span>. ← → home.</li>
+      </ol>
+      <div class="strip">
+        <figure class="scr"><img src="img/c8-team-self.png" alt="Team list with self selected" loading="lazy"><figcaption><b>Self selected</b></figcaption></figure>
+        <figure class="scr"><img src="img/c8-success.png" alt="Self-assign success" loading="lazy"><figcaption><b>Success (1.2 s)</b></figcaption></figure>
+        <figure class="scr"><img src="img/c8-drilldown.png" alt="Self-assign drilldown" loading="lazy"><figcaption><b>Drilldown</b>₹750 line with › for eligible, not-opted-in CSPs.</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="home">
+  <div class="wrap">
+    <p class="eyebrow">08 · Home card</p>
+    <h2>The card's second line, by state</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>State</th><th>Second line</th><th>Colour</th><th>Mark</th><th>Card tap opens</th></tr></thead>
+      <tbody>
+        <tr><td><b>Not accepted</b>, more than 30 min left</td><td class="hi">3:42:10 · कनेक्शन स्वीकार करना बाकी है</td><td>All text/default</td><td>Count</td><td>The screen the CSP left: address, or date if they reached it</td></tr>
+        <tr><td><b>Not accepted</b>, 30 min or less</td><td class="hi"><span class="red">0:24:15</span> · कनेक्शन स्वीकार करना बाकी है</td><td>Time text/critical (red), "·" text/secondary, rest text/default</td><td>Count</td><td>Same</td></tr>
+        <tr><td><b>Accepted</b>, no team</td><td class="hi">टीम चुनना बाकी है</td><td>text/default</td><td>Count</td><td>Drilldown · <span class="hi">टेक्निशियन चुनना बाकी है</span></td></tr>
+        <tr><td><b>Team assigned</b></td><td class="hi">इंस्टॉलेशन के दिन का इंतज़ार करें</td><td>text/default</td><td>None</td><td>Drilldown · <span class="hi">{name} तय हो गए हैं</span></td></tr>
+        <tr><td><b>CSP said no</b></td><td class="hi">कनेक्शन आपने हटा दिया</td><td>Greyed card, text/disabled</td><td>None</td><td>Drilldown (closed)</td></tr>
+        <tr><td><b>Timed out</b></td><td><span class="hi">कनेक्शन वापस ले लिया गया</span>. The card stays as a closed card and later moves to <span class="hi">पुराने काम</span> (archive), as today</td><td>Greyed card, text/disabled</td><td>None</td><td>Drilldown (closed), as today</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="copy">
+  <div class="wrap">
+    <p class="eyebrow">09 · Copy</p>
+    <h2>New and changed strings</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Where</th><th>Live today</th><th>New</th></tr></thead>
+      <tbody>
+        <tr><td>Timer chip (1/2, 2/2)</td><td>—</td><td class="hi">{h:mm:ss} में स्वीकार करें</td></tr>
+        <tr><td>Home card, not accepted</td><td>Countdown only</td><td class="hi">{h:mm:ss} · कनेक्शन स्वीकार करना बाकी है</td></tr>
+        <tr><td>Address CTA</td><td class="hi">यह कनेक्शन लगा सकता हूँ · नहीं लगा सकता</td><td class="hi">इंस्टालेशन का दिन देखें</td></tr>
+        <tr><td>Address link</td><td class="hi">पता नहीं समझे ?</td><td class="hi">पता समझ नहीं आया / नहीं लगा सकते?</td></tr>
+        <tr><td>Address help sheet</td><td class="hi">कस्टमर से पता कॉल पर समझें</td><td class="hi">पता समझ नहीं आ रहा? · तो इनमें से एक करके देखें · कस्टमर को कॉल करके पता समझें · इस जगह पर आपके पहले से लगे {n} कनेक्शन देखें · इस पते पर नहीं लगा सकता</td></tr>
+        <tr><td>Date primary CTA</td><td class="hi">टीम को भेजें</td><td class="hi">यह कनेक्शन लगा सकता हूँ</td></tr>
+        <tr><td>Date secondary CTA</td><td class="hi">नहीं कर पाएँगे</td><td class="hi">इस दिन कनेक्शन नहीं लगा सकता</td></tr>
+        <tr><td>Date change sheet</td><td>—</td><td class="hi">दिन बदल सकते हैं · अगर दिए गए दिन पर आप कनेक्शन नहीं लगा सकते, तो दिन बदल सकते हैं · दिन बदलें · कनेक्शन नहीं लगाना</td></tr>
+        <tr><td>✕ sheet (1/2)</td><td class="hi">यह कनेक्शन अभी नहीं देखना? · कनेक्शन 4 घंटे तक आपके पास रहेगा…</td><td class="hi">कनेक्शन अभी स्वीकार नहीं हुआ है · कनेक्शन स्वीकार करने के लिए इंस्टॉलेशन का दिन देखें और "यह कनेक्शन लगा सकता हूँ" दबाएँ। · बाद में देखूँगा · इंस्टॉलेशन का दिन देखें</td></tr>
+        <tr><td>✕ sheet (2/2)</td><td>(same as above)</td><td class="hi">कनेक्शन अभी स्वीकार नहीं हुआ है · कनेक्शन स्वीकार करने के लिए "यह कनेक्शन लगा सकता हूँ" दबाएँ। · बाद में देखूँगा · यह कनेक्शन लगा सकता हूँ</td></tr>
+        <tr><td>Timer info sheet</td><td>—</td><td class="hi">{h:mm:ss} में कनेक्शन स्वीकार करें · समय समाप्त होने पर यह कनेक्शन आपसे हटा दिया जाएगा। · ठीक है</td></tr>
+        <tr><td>Time-up sheet</td><td>—</td><td class="hi">समय खत्म · यह बुकिंग अब आपके पास नहीं है · ठीक है</td></tr>
+        <tr><td>Accepted screen → team list banner</td><td>—</td><td class="hi">सेवा स्थिति अच्छी बनाए रखने के लिए / {date} तक कनेक्शन लगाएँ</td></tr>
+        <tr><td>Team list CTA</td><td class="hi">टीम को भेजें</td><td class="hi">टीम को भेजें</td></tr>
+        <tr><td>Assigned success + drilldown title</td><td class="hi">{name} को भेज दिया गया है · डिटेल देखें</td><td class="hi">{name} तय हो गए हैं · {date} तक कनेक्शन लगाएँ</td></tr>
+        <tr><td>Self-assign success + drilldown title</td><td>—</td><td class="hi">यह कनेक्शन आप खुद लगाएँगे · {date} तक कनेक्शन लगाएँ · कौन करेगा? आप खुद</td></tr>
+        <tr><td>Drilldown ज़रूरी जानकारी (every install drilldown until archived)</td><td>—</td><td><span class="hi">इस कनेक्शन पर ₹{amount} कमाएँ ›</span> (eligible, not opted in; › opens the scheme page) · <span class="hi">इस कनेक्शन पर ₹{amount} मिलेंगे</span> (opted in, no arrow) · hidden (not eligible)</td></tr>
+        <tr><td>Home card, timed out</td><td>—</td><td class="hi">कनेक्शन वापस ले लिया गया</td></tr>
+        <tr><td>Reason sheet</td><td>(reason set V2)</td><td class="hi">आप यह काम क्यों नहीं कर पाएँगे? · सही वजह बताने से हम आपको बेहतर काम भेज पाएँगे। · सबमिट</td></tr>
+        <tr><td>Removed screen</td><td>—</td><td class="hi">बुकिंग हटा दी गई है · आपकी वजह · {reason} · ठीक है</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section id="measure">
+  <div class="wrap">
+    <p class="eyebrow">10 · Measure</p>
+    <h2>How we'll know it worked</h2>
+    <ul class="plain">
+      <li><b>Timed out before accept:</b> share of bookings that reach the deadline without a decision (baseline 31.5%).</li>
+      <li><b>Accepted, no technician within 24 h:</b> baseline 11.8% of bookings.</li>
+      <li><b>Time from booking to accept</b> and <b>from accept to assign</b>, as medians.</li>
+      <li><b>Booking → install within 14 days</b>: the outcome all of the above should move.</li>
+      <li><b>Guardrail:</b> the explicit no-rate. A clear no is a good outcome, but a jump would mean the new flow pushes CSPs out.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">Wiom Partner App · New booking · Design spec v1 · 26 Oct 2026</div></footer>
+</body>
+</html>
